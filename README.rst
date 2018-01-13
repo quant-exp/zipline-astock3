@@ -1,3 +1,44 @@
+from this line : https://zhuanlan.zhihu.com/p/29850888
+具体使用方法
+
+第一步：下载安装 zipline A股版
+
+wget https://github.com/kanghua309/zipline/archive/astock.zip 或 wget https://github.com/kanghua309/zipline/archive/astock3.zip（针对python3.5）
+unzip astock.zip
+解压后进入目录
+执行安装依赖 
+./etc/ordered_pip.sh ./etc/requirements.txt
+安装zinline A股版
+python setup.py install
+安装依赖的A股日历
+pip install --upgrade git+https://github.com/kanghua309/cn_stock_holidays.git@master #关于交易日历等的代码都是从rainx哪里获得的，特别感谢rainx
+
+第二步： 构造A股数据Bundle
+
+使用a股的数据，需要ingest注入A股数据为zipline的高效列存bundle格式。这时你需要一个描述股票集合和bundle ingest 类的extension.py文件和一个A股数据源。
+
+这两个文件我都给大家准备了
+
+1 docs/astock/extension.py —— 将docs/astock/extension.py 拷贝到 ~/.zipline/下（如果你没有该目录，就创建吧），即可使用下面的数据库加载a股3000多只 —— 随不断发行新股，A 股的数据也不断变化，所以为了简化大家操作，如果在extension.py中不写任何股票，则默认使用下面的History.db 加载全部A股可用股票
+from zipline.data.bundles import register
+from zipline.data.bundles.viadb import viadb
+import pandas as pd
+from cn_stock_holidays.zipline.default_calendar import shsz_calendar
+equities1 = {
+} #没有则是代表全部加载
+register(
+  'my-db-bundle', #name this whatever you like
+   viadb(equities1),
+   calendar='SHSZ'
+)
+
+2 为了方便大家使用，我通过tushare 把A股数据每天都更新数据到History.db （sqllite 数库中），并且上传到开放空间 —— 网上免费的空间实在难找（github 流量和空间都限量，用了几天被限制了，放弃了），所以现在借助于百度网盘，我将该文件放在了共享目录stockdata下 ——大家访问 http://pan.baidu.com/s/1bXDqoQ即可获得：
+下载后解压为History.db，然后在History.db当前所在目录下执行
+zipline ingest -b my-db-bundle 就可以很方便的使用A 股数据了
+
+
+
+
 .. image:: https://media.quantopian.com/logos/open_source/zipline-logo-03_.png
     :target: http://www.zipline.io
     :width: 212px
