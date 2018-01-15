@@ -80,6 +80,10 @@ EXPOSE ${NOTEBOOK_PORT}
 #
 # build and install the zipline package into the image
 #
+#
+RUN pip install lxml
+RUN pip install requests
+RUN pip install bs4
 
 ADD . /zipline
 WORKDIR /zipline
